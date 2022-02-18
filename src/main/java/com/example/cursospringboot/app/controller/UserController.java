@@ -1,6 +1,8 @@
 package com.example.cursospringboot.app.controller;
 
 import com.example.cursospringboot.app.entity.User;
+import com.example.cursospringboot.app.repository.UserRepository;
+import com.example.cursospringboot.app.service.S3Service;
 import com.example.cursospringboot.app.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,53 +21,52 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    //Create a new user
+
+
+
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody User user){
-        return ResponseEntity.status(HttpStatus.CREATED).body(userService.save(user));
+    public ResponseEntity<Boolean> create(@RequestBody User user){
+
+        if (userService.create(user)){
+            return new ResponseEntity(true,HttpStatus.CREATED);
+        }
+        return new ResponseEntity(false,HttpStatus.NOT_FOUND);
     }
+
 
     //Read an user
     @GetMapping("/{id}")
-    public ResponseEntity<?> read (@PathVariable Long id){
-        Optional<User> oUser = userService.findById(id);
-        if(!oUser.isPresent()){
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(oUser);
+    public ResponseEntity<User> read (@PathVariable Long id){
+        User usuariosbyId = userService.getUserbyId(id);
+        return new ResponseEntity<User>(usuariosbyId,HttpStatus.OK);
     }
 
     //Update an user
     @PutMapping("/{id}")
     public ResponseEntity<?> update (@RequestBody User userDetails,@PathVariable Long id ){
-        Optional<User> user= userService.findById(id);
-        if(!user.isPresent()){
-            return ResponseEntity.notFound().build();
+        if (userService.update(userDetails)){
+            return new ResponseEntity(true,HttpStatus.CREATED);
         }
-        user.get().setName(userDetails.getName());
-        user.get().setClave(userDetails.getClave());
-        user.get().setEmail(userDetails.getEmail());
-        user.get().setEnabled(userDetails.getEnabled());
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(userService.save(user.get()));
+        return new ResponseEntity(false,HttpStatus.NOT_FOUND);
     }
 
     //Delete an user
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete (@PathVariable Long id){
-        if(!userService.findById(id).isPresent()){
-            return ResponseEntity.notFound().build();
+        if (userService.deleteUsuerbyId(id)){
+            return new ResponseEntity(true,HttpStatus.CREATED);
         }
-        userService.deleteById(id);
-        return ResponseEntity.ok().build();
+        return new ResponseEntity(false,HttpStatus.NOT_FOUND);
     }
 
     //Read all user
     @GetMapping
-    public List<User> readAll(){
-       List<User> users= StreamSupport
-               .stream(userService.findAll().spliterator(),false)
-               .collect(Collectors.toList());
-       return users;
+    public ResponseEntity<List<User>> readAll(){
+        List<User> us = userService.getUsers();
+        return new ResponseEntity<List<User>>(us,HttpStatus.OK);
     }
+
+
+
+
 }

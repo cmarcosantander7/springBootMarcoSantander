@@ -1,9 +1,6 @@
 package com.example.cursospringboot.app.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -29,5 +26,17 @@ public class User implements Serializable {
     private String email;
 
     private Boolean enabled;
+
+
+    private String foto;
+
+    private String cedula;
+
+    @Transient
+    private String fotoUrl;
+
+    @Transient
+    private String cedulaUrl;
+
 
 }
